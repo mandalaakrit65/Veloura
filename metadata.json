@@ -1,0 +1,6 @@
+{
+  "name": "Veloura",
+  "description": "A beautiful local-synth music player with a custom 5-band parametric equalizer, preset sound profiles, adaptive artwork themes, dynamic audio synthesis, and curated playlists.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
