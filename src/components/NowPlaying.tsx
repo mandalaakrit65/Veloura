@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { Heart, Repeat, Shuffle, MoreHorizontal, ChevronDown, Play, Pause, SkipForward, SkipBack, ListMusic, Clock, Gauge, Sliders } from 'lucide-react';
+import { Heart, Repeat, Shuffle, MoreHorizontal, ChevronDown, Play, Pause, SkipForward, SkipBack, ListMusic, Clock, Gauge, Sliders, Rewind, FastForward } from 'lucide-react';
 import { usePlayer } from '../context/PlayerContext';
 
 const NOW_PLAYING_THEME_CLASSES = [
@@ -145,10 +145,10 @@ export const NowPlaying: React.FC = () => {
       </div>
 
       {/* Main Core Content Area */}
-      <div className="flex-1 flex flex-col justify-start relative">
+      <div className="flex-1 flex flex-col justify-between relative overflow-hidden">
         
-        {/* Album Artwork Wrapper with Curved Bottom */}
-        <div className="relative w-full aspect-square rounded-[36px] overflow-hidden bg-white/20 shadow-neumorphic-large group border border-white/50">
+        {/* Album Artwork Wrapper with Adaptive height */}
+        <div className="flex-1 min-h-0 max-h-[30vh] aspect-square mx-auto rounded-[32px] overflow-hidden bg-white/20 shadow-neumorphic-large group border border-white/50 relative flex items-center justify-center my-1.5">
           <img 
             src={currentSong.albumArt} 
             alt="Album Artwork" 
@@ -156,31 +156,6 @@ export const NowPlaying: React.FC = () => {
           />
           {/* Overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/20 via-transparent to-transparent opacity-60" />
-
-          {/* Neumorphic floating white control pill nested in bottom center of artwork */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[180px] bg-white/70 backdrop-blur-md rounded-full py-2 px-3 flex items-center justify-between shadow-neumorphic-medium border border-white/50">
-            <button 
-              onClick={prevTrack} 
-              className="p-2 hover:bg-white/50 active:scale-90 rounded-full transition-all text-brand-dark"
-              id="btn-np-prev"
-            >
-              <SkipBack size={16} fill="currentColor" />
-            </button>
-            <button 
-              onClick={togglePlay} 
-              className="p-3 bg-brand-primary text-white rounded-full hover:scale-105 active:scale-95 transition-all shadow-md"
-              id="btn-np-play"
-            >
-              {isPlaying ? <Pause size={18} fill="white" /> : <Play size={18} fill="white" className="translate-x-[1px]" />}
-            </button>
-            <button 
-              onClick={nextTrack} 
-              className="p-2 hover:bg-white/50 active:scale-90 rounded-full transition-all text-brand-dark"
-              id="btn-np-next"
-            >
-              <SkipForward size={16} fill="currentColor" />
-            </button>
-          </div>
         </div>
 
         {/* Dynamic Queue Slide-over list */}
@@ -220,147 +195,19 @@ export const NowPlaying: React.FC = () => {
           </div>
         )}
 
-        {/* Playlist Label & Action Controls Row */}
-        <div className="flex items-center justify-between mt-5 px-1">
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-medium block leading-none">PLAYLIST</span>
-            <button 
-              onClick={() => setIsQueueOpen(!isQueueOpen)}
-              className="flex items-center gap-1 text-sm font-bold text-brand-dark mt-1 hover:text-brand-primary transition-colors"
-            >
-              <span>Current Queue</span>
-              <ChevronDown size={14} className="text-brand-medium" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <button 
-              onClick={() => toggleFavorite(currentSong.id)}
-              className={`p-2.5 rounded-full hover:bg-white/40 transition-colors ${
-                favorites.includes(currentSong.id) ? 'text-brand-primary fill-brand-primary' : 'text-brand-medium hover:text-brand-dark'
-              }`}
-              id="btn-np-fav"
-              title="Favorite"
-            >
-              <Heart size={16} />
-            </button>
-            <button 
-              onClick={toggleRepeatMode}
-              className={`p-2.5 rounded-full hover:bg-white/40 transition-colors relative ${
-                repeatMode !== 'off' ? 'text-brand-primary font-bold' : 'text-brand-medium hover:text-brand-dark'
-              }`}
-              id="btn-np-repeat"
-              title={`Repeat: ${repeatMode}`}
-            >
-              <Repeat size={16} />
-              {repeatMode === 'one' && (
-                <span className="absolute bottom-1 right-1 text-[8px] bg-brand-primary text-white rounded-full w-2.5 h-2.5 flex items-center justify-center font-extrabold font-mono">1</span>
-              )}
-            </button>
-            <button 
-              onClick={toggleShuffle}
-              className={`p-2.5 rounded-full hover:bg-white/40 transition-colors ${
-                shuffle ? 'text-brand-primary' : 'text-brand-medium hover:text-brand-dark'
-              }`}
-              id="btn-np-shuffle"
-              title="Shuffle"
-            >
-              <Shuffle size={16} />
-            </button>
-            <button 
-              onClick={() => setIsSpeedOpen(!isSpeedOpen)}
-              className={`p-2.5 rounded-full hover:bg-white/40 transition-colors ${
-                isSpeedOpen ? 'text-brand-primary bg-white/40' : 'text-brand-medium hover:text-brand-dark'
-              }`}
-              title="Playback Speed"
-            >
-              <Gauge size={16} />
-            </button>
-            <button 
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-2.5 rounded-full hover:bg-white/40 text-brand-medium hover:text-brand-dark transition-colors cursor-pointer"
-              title="Acoustic Equalizer"
-              id="btn-np-equalizer"
-            >
-              <Sliders size={16} />
-            </button>
-          </div>
+        {/* Metadata section (Title & Artist) */}
+        <div className="flex flex-col items-center text-center mt-3 px-1">
+          <h1 className="text-xl md:text-2xl font-black text-brand-dark tracking-tight truncate w-full px-2" id="np-song-title">
+            {currentSong.title}
+          </h1>
+          <span className="text-xs font-bold text-brand-medium tracking-wider truncate block uppercase mt-1 w-full px-2">
+            {currentSong.artist || 'Unknown Artist'}
+          </span>
         </div>
 
-        {/* Speed Controls Popover */}
-        {isSpeedOpen && (
-          <div className="bg-white/40 border border-white/50 rounded-2xl p-3 mt-2 flex items-center justify-between animate-fade-in text-xs shadow-neumorphic-inset">
-            <span className="font-bold text-brand-dark">Speed:</span>
-            <div className="flex gap-1.5">
-              {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map(s => (
-                <button 
-                  key={s}
-                  onClick={() => {
-                    changeSpeed(s);
-                    setIsSpeedOpen(false);
-                  }}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
-                    playbackRate === s ? 'bg-brand-primary text-white shadow-sm' : 'hover:bg-white/60 text-brand-medium bg-white/30 border border-white/40'
-                  }`}
-                >
-                  {s}x
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Metadata section */}
-        <div className="flex items-center justify-between mt-6 px-1">
-          <div className="min-w-0 flex-1">
-            <span className="text-xs font-bold text-brand-medium tracking-wider truncate block uppercase">{currentSong.artist || 'Unknown Artist'}</span>
-            <h1 className="text-2xl font-black text-brand-dark tracking-tight mt-1 truncate">{currentSong.title}</h1>
-          </div>
-          <button 
-            onClick={() => setIsSleepOpen(!isSleepOpen)}
-            className={`p-2.5 rounded-full border transition-all ${
-              sleepTimer !== null 
-                ? 'bg-brand-dark border-brand-dark text-white' 
-                : 'bg-white/50 border-white/60 text-brand-medium hover:text-brand-dark shadow-neumorphic-medium'
-            }`}
-            title="Sleep Timer"
-          >
-            <Clock size={16} />
-            {sleepTimer !== null && (
-              <span className="absolute -top-1 -right-1 text-[8px] bg-brand-primary text-white px-1 py-0.5 rounded-full font-bold">
-                {sleepTimer}m
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Sleep Timer popover */}
-        {isSleepOpen && (
-          <div className="bg-white/40 border border-white/50 rounded-2xl p-3 mt-2 flex items-center justify-between animate-fade-in text-xs shadow-neumorphic-inset">
-            <span className="font-bold text-brand-dark">Sleep Timer:</span>
-            <div className="flex gap-1">
-              {[5, 15, 30, 45, 60, null].map((m, i) => (
-                <button 
-                  key={i}
-                  onClick={() => {
-                    setSleepTimerDuration(m);
-                    setIsSleepOpen(false);
-                  }}
-                  className={`px-2 py-1 rounded-lg font-bold transition-all ${
-                    sleepTimer === m ? 'bg-brand-primary text-white shadow-sm' : 'hover:bg-white/60 text-brand-medium bg-white/30 border border-white/40'
-                  }`}
-                >
-                  {m ? `${m}m` : 'Off'}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Elegant Progress bar & knob */}
-        <div className="mt-8 px-1 flex flex-col gap-2">
-          <div className="relative w-full group py-2">
-            {/* Slider track background */}
+        {/* Playback Timeline Slider (Playback option) */}
+        <div className="mt-3 px-1 flex flex-col gap-1">
+          <div className="relative w-full group py-1">
             <input 
               type="range"
               min={0}
@@ -375,10 +222,207 @@ export const NowPlaying: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-between text-xs text-brand-medium font-bold font-mono">
+          <div className="flex justify-between text-[10px] text-brand-medium font-bold font-mono px-0.5">
             <span>{formatSeconds(progress)}</span>
             <span>{formatSeconds(duration)}</span>
           </div>
+        </div>
+
+        {/* Core Playback Control Row (Play, Pause, Forward, Rewind, Skip, Repeat, Shuffle) */}
+        <div className="flex items-center justify-between px-1 mt-3">
+          {/* Shuffle Toggle */}
+          <button 
+            onClick={toggleShuffle}
+            className={`p-2 rounded-full transition-colors ${
+              shuffle ? 'text-brand-primary' : 'text-brand-medium hover:text-brand-dark'
+            }`}
+            id="btn-np-shuffle"
+            title="Shuffle"
+          >
+            <Shuffle size={18} />
+          </button>
+
+          {/* Previous Track */}
+          <button 
+            onClick={prevTrack} 
+            className="p-2.5 hover:bg-white/40 active:scale-90 rounded-full transition-all text-brand-dark"
+            id="btn-np-prev"
+            title="Previous Track"
+          >
+            <SkipBack size={18} fill="currentColor" />
+          </button>
+
+          {/* Rewind 10 Seconds */}
+          <button 
+            onClick={() => seek(progress - 10)} 
+            className="p-2.5 hover:bg-white/40 active:scale-90 rounded-full transition-all text-brand-dark flex flex-col items-center"
+            id="btn-np-rewind"
+            title="Rewind 10s"
+          >
+            <Rewind size={20} className="text-brand-dark" />
+            <span className="text-[7px] font-bold font-mono text-brand-medium -mt-0.5">10s</span>
+          </button>
+
+          {/* Master Play/Pause Button */}
+          <button 
+            onClick={togglePlay} 
+            className="p-4 bg-brand-primary text-white rounded-full hover:scale-105 active:scale-95 transition-all shadow-md flex items-center justify-center"
+            id="btn-np-play"
+            title={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause size={22} fill="white" /> : <Play size={22} fill="white" className="translate-x-[1.5px]" />}
+          </button>
+
+          {/* Fast Forward 10 Seconds */}
+          <button 
+            onClick={() => seek(progress + 10)} 
+            className="p-2.5 hover:bg-white/40 active:scale-90 rounded-full transition-all text-brand-dark flex flex-col items-center"
+            id="btn-np-forward"
+            title="Forward 10s"
+          >
+            <FastForward size={20} className="text-brand-dark" />
+            <span className="text-[7px] font-bold font-mono text-brand-medium -mt-0.5">10s</span>
+          </button>
+
+          {/* Next Track */}
+          <button 
+            onClick={nextTrack} 
+            className="p-2.5 hover:bg-white/40 active:scale-90 rounded-full transition-all text-brand-dark"
+            id="btn-np-next"
+            title="Next Track"
+          >
+            <SkipForward size={18} fill="currentColor" />
+          </button>
+
+          {/* Repeat Mode Toggle */}
+          <button 
+            onClick={toggleRepeatMode}
+            className={`p-2 rounded-full transition-colors relative ${
+              repeatMode !== 'off' ? 'text-brand-primary font-bold' : 'text-brand-medium hover:text-brand-dark'
+            }`}
+            id="btn-np-repeat"
+            title={`Repeat: ${repeatMode}`}
+          >
+            <Repeat size={18} />
+            {repeatMode === 'one' && (
+              <span className="absolute bottom-0 right-0 text-[7px] bg-brand-primary text-white rounded-full w-2.5 h-2.5 flex items-center justify-center font-extrabold font-mono">1</span>
+            )}
+          </button>
+        </div>
+
+        {/* Secondary Utilities & Controls (Favorite, Speed, Equalizer, Sleep Timer, Playlist Label) */}
+        <div className="flex flex-col gap-2 mt-4 bg-white/40 border border-white/30 rounded-3xl p-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase tracking-wider text-brand-medium">PLAYING FROM:</span>
+              <button 
+                onClick={() => setIsQueueOpen(!isQueueOpen)}
+                className="flex items-center gap-1 text-[11px] font-bold text-brand-dark hover:text-brand-primary transition-colors"
+              >
+                <span>Current Queue</span>
+                <ChevronDown size={12} className="text-brand-medium" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Favorite toggle */}
+              <button 
+                onClick={() => toggleFavorite(currentSong.id)}
+                className={`p-1.5 rounded-full hover:bg-white/40 transition-colors ${
+                  favorites.includes(currentSong.id) ? 'text-brand-primary fill-brand-primary' : 'text-brand-medium hover:text-brand-dark'
+                }`}
+                id="btn-np-fav"
+                title="Favorite"
+              >
+                <Heart size={15} />
+              </button>
+
+              {/* Playback speed toggle */}
+              <button 
+                onClick={() => setIsSpeedOpen(!isSpeedOpen)}
+                className={`p-1.5 rounded-full hover:bg-white/40 transition-colors ${
+                  isSpeedOpen ? 'text-brand-primary bg-white/40' : 'text-brand-medium hover:text-brand-dark'
+                }`}
+                title="Playback Speed"
+              >
+                <Gauge size={15} />
+              </button>
+
+              {/* Equalizer toggle */}
+              <button 
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-1.5 rounded-full hover:bg-white/40 text-brand-medium hover:text-brand-dark transition-colors cursor-pointer"
+                title="Equalizer Settings"
+                id="btn-np-equalizer"
+              >
+                <Sliders size={15} />
+              </button>
+
+              {/* Sleep timer toggle */}
+              <button 
+                onClick={() => setIsSleepOpen(!isSleepOpen)}
+                className={`p-1.5 rounded-full border transition-all relative ${
+                  sleepTimer !== null 
+                    ? 'bg-brand-dark border-brand-dark text-white' 
+                    : 'bg-white/50 border-white/60 text-brand-medium hover:text-brand-dark shadow-sm'
+                }`}
+                title="Sleep Timer"
+              >
+                <Clock size={15} />
+                {sleepTimer !== null && (
+                  <span className="absolute -top-1 -right-1 text-[8px] bg-brand-primary text-white px-1 py-0.5 rounded-full font-bold">
+                    {sleepTimer}m
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Speed Controls Popover Inline */}
+          {isSpeedOpen && (
+            <div className="bg-white/60 border border-white/50 rounded-xl p-2 flex items-center justify-between animate-fade-in text-[10px] shadow-sm">
+              <span className="font-bold text-brand-dark">Speed:</span>
+              <div className="flex gap-1">
+                {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map(s => (
+                  <button 
+                    key={s}
+                    onClick={() => {
+                      changeSpeed(s);
+                      setIsSpeedOpen(false);
+                    }}
+                    className={`px-2 py-0.5 rounded-md font-extrabold transition-all ${
+                      playbackRate === s ? 'bg-brand-primary text-white shadow-sm' : 'hover:bg-white/60 text-brand-medium bg-white/30'
+                    }`}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sleep Timer popover Inline */}
+          {isSleepOpen && (
+            <div className="bg-white/60 border border-white/50 rounded-xl p-2 flex items-center justify-between animate-fade-in text-[10px] shadow-sm">
+              <span className="font-bold text-brand-dark">Timer:</span>
+              <div className="flex gap-1">
+                {[5, 15, 30, 45, 60, null].map((m, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => {
+                      setSleepTimerDuration(m);
+                      setIsSleepOpen(false);
+                    }}
+                    className={`px-2 py-0.5 rounded-md font-extrabold transition-all ${
+                      sleepTimer === m ? 'bg-brand-primary text-white shadow-sm' : 'hover:bg-white/60 text-brand-medium bg-white/30'
+                    }`}
+                  >
+                    {m ? `${m}m` : 'Off'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
       </div>
